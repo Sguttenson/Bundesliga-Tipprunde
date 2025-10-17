@@ -107,13 +107,38 @@ for i, (home, away) in enumerate(spiele, start=1):
     data.append({"spiel": spiel, "team": st.session_state.team, "tipp": tipp})
     st.markdown("---")
 
-# ---------------------------------------------------------
-#  TIPPS SPEICHERN
-# ---------------------------------------------------------
+# -----------------------------------------------------------------
+# TIPPS SPEICHERN (robust: update falls vorhanden, sonst insert)
+# -----------------------------------------------------------------
 if st.button("💾 Tipps speichern"):
+    team = st.session_state.team
+    ok = 0
     for row in data:
-        supabase.table("tipps").upsert(row, on_conflict=["team", "spiel"], ignore_duplicates=False).execute()
-    st.success("✅ Tipps erfolgreich gespeichert!")
+        # Gibt es schon einen Tipp für dieses Team & Spiel?
+        exists = (
+            supabase.table("tipps")
+            .select("id")
+            .eq("team", team)
+            .eq("spiel", row["spiel"])
+            .limit(1)
+            .execute()
+        )
+        if exists.data:
+            # Update vorhandenen Tipp
+            supabase.table("tipps")\
+                .update({"tipp": row["tipp"]})\
+                .eq("team", team)\
+                .eq("spiel", row["spiel"])\
+                .execute()
+        else:
+            # Neu eintragen
+            supabase.table("tipps").insert({
+                "team": team,
+                "spiel": row["spiel"],
+                "tipp": row["tipp"]
+            }).execute()
+        ok += 1
+    st.success(f"✅ {ok} Tipps gespeichert/aktualisiert!")
 
 # ---------------------------------------------------------
 #  ÜBERSICHT ALLER TIPPS
