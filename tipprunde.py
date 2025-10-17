@@ -12,7 +12,7 @@ st.set_page_config(page_title="Bundesliga Tipprunde", page_icon="⚽")
 # ---------------------------------------------------------
 url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
-supabase: Client = create_client(url, key)
+supabase: create_client(url, key)
 
 # ---------------------------------------------------------
 #  LOGIN-BEREICH
