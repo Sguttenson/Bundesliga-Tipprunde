@@ -112,7 +112,7 @@ for i, (home, away) in enumerate(spiele, start=1):
 # ---------------------------------------------------------
 if st.button("💾 Tipps speichern"):
     for row in data:
-        supabase.table("tipps").upsert(row, on_conflict=["spiel", "team"]).execute()
+        supabase.table("tipps").upsert(row, on_conflict="team,spiel").execute()
     st.success("✅ Tipps erfolgreich gespeichert!")
 
 # ---------------------------------------------------------
